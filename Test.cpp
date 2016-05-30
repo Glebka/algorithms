@@ -12,55 +12,35 @@
 #include <iomanip>
 
 using namespace std;
-typedef vector<int> IntArray;
-typedef vector<int>::iterator IntArrayIter;
 
-typedef std::function<int(IntArrayIter&, IntArrayIter&, int)> SearchFunc;
+/*
+База для создания алгоритмов:
+1. Полуоткрытые интервалы:
+	1.1 b - the first element
+	1.2 e - points to the 'element' after the end of sequence
+	1.3 empty if e=b
+	1.4 size = e - b
+	1.5 for any m: b<= m < e -> [b,e) = [b,m) + [m, e)
+2. Контракт - база индукции, ограничения на типы, ассерты
+3. Инвариант = никогда не изменяется, что-то на что мы можем положиться. Инвариант - это свойство, которое сохраняется у класса объектов, 
+которое не меняется при их трансформации.
+Инвариант - это условие, на которое мы можем положиться во время выполнения программы.
+Инвариант цикла - условие, которое сохраняется до итерации и полсе итерации цикла. Инвариант - это правило, по которому будет вести себя ваш алогоритм.
+4. Разделяй и властвуй:
+	4.1 Определить совю проблему на полуоткрытом интервале.
+	4.2 Проверьте базу (проверить на тривиальных кейсах).
+	4.3 Определить инвариант.
+	4.4 Разбейте вашу проблему используя разделяющее свойство полуоткрытых интервалов.
+	4.5 Условие остановки.
+	4.6 Используйте цикл.
+	4.7 Сходимость
+5. Рекурсия
+6. Сходимость - дальше алгоритму некуда выполнятся. Мы должны проверять это.
 
-int linear_search(IntArrayIter& begin, IntArrayIter& end, int key)
-{
-	if ((end - begin) < 0)
-		throw std::exception("Invalid iterators");
+Нотация О - символ Ландау
 
-    IntArrayIter it = begin;
-	for (it; it!=end; ++it)
-	{
-		if (*it == key)
-			break;
-	}
-	return (it - begin);
-}
+*/
 
-int binary_search(IntArrayIter& begin, IntArrayIter& end, int key)
-{
-	if (!is_sorted(begin, end))
-		throw std::exception("Not sorted");
-
-	int len = end - begin;
-
-	if (len == 0)
-		return len;
-
-	if (*begin == key)
-		return 0;
-	else
-		return len;
-
-	assert(begin < end);
-
-	IntArrayIter mid = begin + (end - begin) / 2;
-
-	if (key < *mid)
-		return binary_search(begin, mid, key);
-	else
-		return binary_search(mid, end, key);
-}
-
-/*template <class T, class TFunct, class P1, class P2>
-T test(T expected, TFunct func, P1 p1, P2 p2)
-{
-	return 
-}*/
 /*
 // длина полуоткрытого интервала равна разности end - begin
 // единственным невалидным елементом, который можно вернуть - это конец полуоткрытого интервала
@@ -132,7 +112,7 @@ TIter binary_search_2(TIter begin, TIter end, T key)
 }
 
 template <class TIter, class T>
-TIter upper_bound(TIter begin, TIter end, T key)
+TIter upper_bound_1(TIter begin, TIter end, T key)
 {
 	assert(std::is_sorted(begin, end));
 	while ( begin < end )
@@ -150,21 +130,16 @@ TIter upper_bound(TIter begin, TIter end, T key)
 	return begin;
 }
 
-// doesn't compile
 template <class TIter, class T>
 TIter binary_search_3(TIter begin, TIter end, T key)
 {
-	auto res = upper_bound<TIter, T>(begin, end, key);
-	if (res == end)
-		return end;
-	else
-	{
-		return *res == key ? res : end;
-	}
+	auto res = upper_bound_1(begin, end, key);
+	return *res == key ? res : end;
 }
 
 // implement lower-bound
 // implement tests for upper / lower bound
+// count 7 in sequence
 
 ostream& operator<<( ostream& o, const vector<int>& v )
 {
@@ -244,92 +219,3 @@ int main()
 // доказать свойства логарифмов
 // Monte Carlo algo
 // RANSAC
-
-
-/*bool checkSearch( SearchFunc search, IntArray& A, int targetIndex )
-{
-return (targetIndex == search(A.begin(), A.end(), 42));
-}
-
-struct TestData
-{
-IntArray input;
-int answer;
-std::string description;
-};
-
-struct FunctionWrapper
-{
-SearchFunc func;
-std::string description;
-};
-
-int main()
-{
-std::vector<FunctionWrapper> functions =
-{
-{ linear_search, "linear_search"},
-{ binary_search, "binary_search" }
-};
-
-std::vector<TestData> testData = {
-{
-{}, 0, "{}"
-},
-{
-{2}, 1, "{2}"
-},
-{
-{42}, 0, "{42}"
-},
-{
-{1, 2, 4}, 3, "{1, 2, 4}"
-},
-{
-{ 42, 43 }, 0, "{ 42, 43 }"
-},
-{
-{ 3, 4 }, 2, "{ 3, 4 }"
-},
-{
-{ 1, 2, 3, 5, 41 }, 5, "{ 1, 2, 3, 5, 41 }"
-},
-{
-{ 43, 45, 67, 100 }, 4, "{ 43, 45, 67, 100 }"
-},
-{
-{ 3, 5,41,43,45,67 }, 6, "{ 3, 5,41,43,45,67 }"
-},
-{
-{ 1, 2, 5, 42 }, 3, "{ 1, 2, 5, 42 }"
-},
-{
-{ 42, 45, 67, 100 }, 0, "{ 42, 45, 67, 100 }"
-},
-{
-{ 3, 5, 41, 42 }, 3, "{ 3, 5, 41, 42 }"
-},
-{
-{ 3, 5, 41, 42, 45, 67 }, 3, "{ 3, 5, 41, 42, 45, 67 }"
-},
-{
-{ 3, 5, 42, 45, 67 }, 2, "{ 3, 5, 42, 45, 67 }"
-}
-};
-
-for (TestData test : testData)
-{
-cout << "------- Test: " << test.description << " ----------" << endl;
-for (FunctionWrapper wrapper : functions)
-{
-//const char* result = "EXCEPTION";
-bool result = checkSearch(wrapper.func, test.input, test.answer);
-cout << "Test " << wrapper.description << ": " << ((result) ? "OK" : "FAILED") << endl;
-if (!result)
-{
-cout << "Expected: " << test.answer << ";" << "Given: " << wrapper.func(test.input.begin(), test.input.end(), 42) << endl;
-goto end;
-}
-}
-}
-end:*/

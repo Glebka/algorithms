@@ -192,6 +192,18 @@ Vec merge(TIter b1, TIter e1, TIter b2, TIter e2)
 	return result;
 }
 
+template<typename TIter>
+void merge_sort(TIter b, TIter e, TIter out)
+{
+	if (e - b > 1)
+	{
+		TIter m = b + (e - b) / 2;
+		merge_sort(b, m, out);
+		merge_sort(m, e, out);
+		merge(b, m, m, e, out);
+	}
+}
+
 int main()
 {
 	//test_sort( naive_sort<Vec::iterator> );

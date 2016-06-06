@@ -131,10 +131,120 @@ TIter upper_bound_1(TIter begin, TIter end, T key)
 }
 
 template <class TIter, class T>
+TIter lower_bound_1(TIter begin, TIter end, T key)
+{
+	//....
+}
+
+template <class TIter, class T>
 TIter binary_search_3(TIter begin, TIter end, T key)
 {
-	auto res = upper_bound_1(begin, end, key);
+	auto res = lower_bound_1(begin, end, key);
 	return *res == key ? res : end;
+}
+
+template <class T>
+void my_swap(T& first, T& second)
+{
+	T temp = first;
+	first = second;
+	second = temp;
+}
+
+template <class TIter>
+void naive_sort(TIter begin, TIter end)
+{
+	// [begin, end) = [sorted) [unsorted)
+	//[b,e) = [b,pivot)[pivot,e)
+
+	for (TIter i = begin; i < end; ++i)
+	{
+		for (TIter j = i+1 ; j < end; ++j)
+		{
+			if (*j < *i)
+			{
+				my_swap(*i, *j);
+			}
+		}
+	}
+}
+
+template < class TIter >
+TIter my_min_element(TIter b, TIter e)
+{
+	TIter result = b;
+	while (b < e)
+	{
+		if (*b < *result)
+			result = b;
+		++b;
+	}
+	return result;
+}
+
+//Savonia
+// selection sort - сортировка выбором
+template <class TIter>
+void selection_sort( TIter b, TIter e )
+{
+	// [begin, end) = [sorted) [unsorted)
+	//[b,e) = [b,pivot)[pivot,e) - devide and conquer
+	// 
+	for (TIter pivot = b; pivot < e; ++pivot)
+		my_swap(*pivot, *my_min_element(pivot, e)); // n, n-1, n-2, n-3, ..., 1
+	// O(n^2)
+}
+
+template <class TIter>
+void buble_sort(TIter b, TIter e)
+{
+	// [b,e) = [unsorted)[sorted)
+	for (TIter pivot = e; pivot != b; --pivot)
+	{
+		//[b,pivot) = [b, i)[i,pivot)
+		assert( std::is_sorted(pivot, e) );
+		for (TIter next_i = b + 1; next_i < pivot; ++next_i)
+		{
+			auto i = next_i - 1;
+			assert(i == my_min_element(b, next_i)); //[b,i]
+
+			
+			if (*next_i < *i)
+				my_swap(*i, *next_i);
+
+			assert(i == my_min_element(b, next_i)); //[b,i]
+		}
+		assert(std::is_sorted(pivot, e));
+	}
+}
+
+template <class TIter>
+void insertion_sort(TIter b, TIter e)
+{
+	// p = pivot
+	// [b,e) = [sorted)[unsorted)
+	// [b,e) = [b, pivot)[pivot,e)
+	for ()
+	{
+		assert(std::is_sorted(b, pivot));
+		// insert *pivot to [b, pivot)
+		// [b, pivot)[*pivot] = [b, pivot)[v]
+		// [b, pivot)[v] = [b, i)[v](i, pivot]
+		// [b, pivot)[v] = [b, i)[i][i+1, pivot]
+		for (TIter i = pivot; i != b; --i)
+		{
+			assert(std::is_sorted(b, i) && std::is_sorted(i, pivot + 1));
+			auto next_i = i + 1;
+			
+			if (*next_i < *i)
+				swap(*i, *next_i);
+			else
+				break;
+
+			assert(std::is_sorted(b, i) && std::is_sorted(i, pivot + 1));
+		}
+		assert(std::is_sorted(b, pivot));
+	}
 }
 
 // implement lower-bound
@@ -207,7 +317,10 @@ void test_binary_search(TFunc bin_search)
 int main()
 {
 	//test_binary_search(binary_search_1<Vec::iterator, int>);
-	test_binary_search(binary_search_3<Vec::iterator, int>);
+	//test_binary_search(binary_search_2<Vec::iterator, int>);
+
+	Vec test = { 10, 9 , 12, 23, 0, 7, 8, 6, 1 };
+	naive_sort(test.begin(), test.end());
 	system("pause");
     return 0;
 }

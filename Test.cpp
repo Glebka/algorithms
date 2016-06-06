@@ -217,7 +217,7 @@ void buble_sort(TIter b, TIter e)
 		assert(std::is_sorted(pivot, e));
 	}
 }
-
+// 10 8 9 1 3 2 7 5
 template <class TIter>
 void insertion_sort(TIter b, TIter e)
 {

@@ -2,6 +2,7 @@
 #include <vector>
 #include <algorithm>
 #include <iterator>
+#include <cassert>
 
 template<typename TIter>
 void my_swap( TIter first, TIter second )
@@ -165,9 +166,8 @@ void test_merge(TFunc merge)
 }
 
 template<typename TIter>
-Vec merge(TIter b1, TIter e1, TIter b2, TIter e2)
+void merge(TIter b1, TIter e1, TIter b2, TIter e2, TIter out)
 {
-	Vec result;
 
 	auto p1 = b1;
 	auto p2 = b2;
@@ -176,38 +176,75 @@ Vec merge(TIter b1, TIter e1, TIter b2, TIter e2)
 	{
 		if (*p1 < *p2)
 		{
-			result.push_back(*p1);
+			*out = *p1;
+			++out;
 			++p1;
 		}
 		else
 		{
-			result.push_back(*p2);
+			*out = *p2;
+			++out;
 			++p2;
 		}
 	}
 	for (p1; p1 != e1; ++p1)
-		result.push_back(*p1);
+	{
+		*out = *p1;
+		++out;
+	}
+		
 	for (p2; p2 != e2; ++p2)
-		result.push_back(*p2);
-	return result;
+	{
+		*out = *p2;
+		++out;
+	}
 }
 
 template<typename TIter>
-void merge_sort(TIter b, TIter e, TIter out)
+void merge_sort(TIter b, TIter e, TIter buff)
 {
+	/*
+	Любая рекурсия должна начинаться с проверки выхода из рекурсии
+	*/
 	if (e - b > 1)
 	{
-		TIter m = b + (e - b) / 2;
-		merge_sort(b, m, out);
-		merge_sort(m, e, out);
-		merge(b, m, m, e, out);
+		TIter m = b + (e - b) / 2; // O(1)
+		merge_sort(b, m, buff);
+		merge_sort(m, e, buff);
+		merge(b, m, m, e, buff); // O(n)
+		std::copy(buff, buff + (e - b), b); // O(n)
 	}
+	assert(std::is_sorted(b, e));
+}
+
+template<typename TIter>
+void outer_merge_sort(TIter src_b, TIter src_e, TIter dst_b)
+{
+	if (e - b <= 1)
+	{
+		std::copy(src_b, src_e, dst_b);
+		return;
+	}
+	size_t size = src_e - src_b;
+	size_t m = size / 2;
+	auto src_m = src_b + m;
+	auto dst_m = dst_b + m;
+	auto dst_e = dst_b + size;
+
+	outer_merge_sort(src_b, src_m, dst_b);
+	outer_merge_sort(src_m, src_e, dst_m);
+	merge(dst_b, dst_m, dst_m, dst_e, src_b);
+	assert(std::is_sorted(b, e));
 }
 
 int main()
 {
 	//test_sort( naive_sort<Vec::iterator> );
-	test_merge(merge<Vec::iterator>);
+	//test_merge(merge<Vec::iterator>);
+	Vec in1 = { 9, 8, 10, 1, 5, 4 };
+	Vec out( in1.size() );
+	merge_sort(in1.begin(), in1.end(), out.begin() );
+	std::cout << out << std::endl;
 	/*Vec in1 = { 1, 3, 5, 7 };
 	Vec in2 = { 2, 4, 6, 8 };
 

@@ -237,14 +237,101 @@ void outer_merge_sort(TIter src_b, TIter src_e, TIter dst_b)
 	assert(std::is_sorted(b, e));
 }
 
+//quick sort
+/*
+[ )[x][  )
+ <     =<
+ partition
+*/
+template<typename TIter>
+void move_element(TIter from, TIter to)
+{
+	assert(from <= to);
+	if (from == to)
+		return;
+
+	auto current = from;
+	auto next = from + 1;
+	if ( next <= to )
+	{ }
+}
+
+template<typename TIter>
+TIter my_partition(TIter b, TIter p, TIter e)
+{
+	assert(b <= p && p <=e);
+
+	auto x = *p;
+	auto m = b;
+	while ()
+	{
+		// [b, p)[p][p, bu)[bu, e)
+		// [b, p)[p][p+1, bu) [bu] [bu +1, e)
+		if (*bu > *p)
+		{
+			// [b, p)[p, bu] [bu+1, e)
+			bu++;
+		}
+		else
+		{
+			// [b, p)[p][p+1, bu) [bu] [bu+1, e)
+			// [b, bu][m][m+1,bu)[m+1, bu)[m+1][bu+1,e)
+			std::swap(*m, *bu);
+		}
+	}
+
+	/*if (e - b <= 1)
+		return p;
+
+	auto newPivot = p;
+	for (auto i = p - 1; i != b; --i)
+	{
+		if (*i >= *p)
+		{
+			std::iter_swap(i, p);
+			newPivot = i;
+		}
+	}
+
+	for (auto j = newPivot + 1; j < e; ++j)
+	{
+		if (*j < *newPivot)
+		{
+			std::iter_swap(j, newPivot);
+			newPivot = j;
+		}
+	}
+
+	/*assert(*std::max(b, pivot) < *pivot);
+	assert(*std::min(pivot + 1) >= *pivot);*/
+	return newPivot;
+}
+
+template<typename TIter>
+void quick_sort(TIter b, TIter e)
+{
+	if (e - b <= 1)
+		return;
+
+	//TIter pivot = b + ( e - b) / 2;
+	pivot = partition(b, e, *b);
+	quick_sort(b, pivot);
+	quick_sort(pivot + 1, e);
+}
+
 int main()
 {
 	//test_sort( naive_sort<Vec::iterator> );
 	//test_merge(merge<Vec::iterator>);
-	Vec in1 = { 9, 8, 10, 1, 5, 4 };
-	Vec out( in1.size() );
+	Vec in1 = { 3, 9, 7, 4, 5, 10, 1, 2 };
+
+	auto pivot = in1.begin() + 4;
+	auto res = my_partition(in1.begin(), pivot, in1.end());
+	
+	std::cout << in1 << std::endl;
+	/*Vec out( in1.size() );
 	merge_sort(in1.begin(), in1.end(), out.begin() );
-	std::cout << out << std::endl;
+	std::cout << out << std::endl;*/
 	/*Vec in1 = { 1, 3, 5, 7 };
 	Vec in2 = { 2, 4, 6, 8 };
 
